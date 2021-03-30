@@ -1,6 +1,6 @@
-import pandas as pd
-from datetime import datetime
 from __future__ import annotations
+from datetime import datetime
+from enum import Enum
 
 
 class Event:
@@ -31,3 +31,19 @@ class Event:
         same_room_same_time = self.room == other.lecture and self.room != "" and same_time
 
         return same_lecture_same_time or same_room_same_time
+
+    def get_conflict_type(self, other: Event):  # To add: None / NaN case
+        same_time = self.at_same_date_other_event(other) or other.at_same_date_other_event(self)
+        same_lecture_same_time = self.lecture == other.lecture and same_time
+        same_room_same_time = self.room == other.lecture and self.room != "" and same_time
+
+        if same_lecture_same_time:
+            return ConflictType.LECTURER
+        if same_room_same_time:
+            return ConflictType.ROOM
+        return None
+
+
+class ConflictType(Enum):
+    LECTURER = 1
+    ROOM = 2

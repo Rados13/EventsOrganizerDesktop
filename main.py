@@ -3,7 +3,7 @@ from typing import List
 from os.path import splitext, exists, isfile, isdir, join
 from os import listdir
 import DataVerifier as dv
-from ConflictChecker import ConflictChecker
+from ConflictChecker import get_all_conflicts
 from Event import Event
 
 
@@ -63,10 +63,9 @@ if __name__ == '__main__':
 
     data_frames = dv.verify_and_filter(data_frames)
 
-    # [print(df.to_string()) for df in data_frames]
+    event_table_list = map(lambda a: map(lambda b: Event.create_from_data_frame(b), a), data_frames)
 
-    checker = ConflictChecker()
-    conflicts = checker.get_all_conflicts(data_frames)
+    conflicts = get_all_conflicts(event_table_list)
 
     if conflicts:
         print("Conflicts Detected")
