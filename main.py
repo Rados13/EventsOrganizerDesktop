@@ -3,7 +3,9 @@ from typing import List
 from os.path import splitext, exists, isfile, isdir, join
 from os import listdir
 import DataVerifier as dv
-import ConflictChecker as cc
+from ConflictChecker import ConflictChecker
+from Event import Event
+
 
 file = '.\sheet3.xlsx'
 QUIT = "quit"
@@ -36,13 +38,15 @@ def find_all_excels_in_path(path: str) -> List[str]:
     return result
 
 
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     excel_lists = []
-    text = ""
+    # text = ""
+    text = file
     print("Input excels paths")
     while text != QUIT:
-        text = input()
+        # text = input()
         if text != QUIT and exists(text):
             if is_xlsx_file(text):
                 excel_lists.append(text)
@@ -52,15 +56,20 @@ if __name__ == '__main__':
                 print("This path does not correspond to directory or xlsx file")
         elif text != QUIT and not exists(text):
             print("This path is not correct")
+        # text=QUIT
     data_frames = [import_data_from_excel(excel) for excel in excel_lists]
 
-    data_frames = dv.verify_and_filter(data_frames)
-    list(map(lambda df: print(df.to_string()), data_frames))
+    events = [Event.create_from_data_frame(row) for df in data_frames for idx,row in df.iterrows()]
 
-    checker = cc.ConflictChecker()  # Static class, not sure if good idea, probably not...
+    data_frames = dv.verify_and_filter(data_frames)
+
+    # [print(df.to_string()) for df in data_frames]
+
+    checker = ConflictChecker()
     conflicts = checker.get_all_conflicts(data_frames)
 
     if conflicts:
         print("Conflicts Detected")
     for conflict in conflicts:
         print(conflict)
+
