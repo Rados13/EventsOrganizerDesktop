@@ -2,10 +2,10 @@ import pandas as pd
 from typing import List
 from os.path import splitext, exists, isfile, isdir, join
 from os import listdir
-import DataVerifier as dv
 from ConflictChecker import get_all_conflicts
 from Event import Event
-
+from datetime import datetime
+from DataVerifier import verify_and_filter
 
 file = '.\sheet3.xlsx'
 QUIT = "quit"
@@ -20,11 +20,12 @@ def import_data_from_excel(file_name: str) -> pd.DataFrame:
 def fill_empty_cells(df: pd.DataFrame) -> pd.DataFrame:
     for column in df:
         prev = None
-        for idx, elem in enumerate(df[column]):
-            if elem is None or pd.isna(elem):
-                df.loc[idx, column] = prev
-            if elem is not None and not pd.isna(elem):
-                prev = elem
+        if column != "Godziny":
+            for idx, elem in enumerate(df[column]):
+                if elem is None or pd.isna(elem):
+                    df.loc[idx, column] = prev
+                if elem is not None and not pd.isna(elem):
+                    prev = elem
     return df
 
 
@@ -38,13 +39,12 @@ def find_all_excels_in_path(path: str) -> List[str]:
     return result
 
 
-
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     excel_lists = []
     # text = ""
     text = file
-    print("Input excels paths")
+    print("Input excels paths. When you finish write quit")
     while text != QUIT:
         # text = input()
         if text != QUIT and exists(text):
@@ -56,19 +56,15 @@ if __name__ == '__main__':
                 print("This path does not correspond to directory or xlsx file")
         elif text != QUIT and not exists(text):
             print("This path is not correct")
-        # text=QUIT
-    data_frames = [import_data_from_excel(excel) for excel in excel_lists]
+        text = QUIT
+    data_frames = [(idx + 1, import_data_from_excel(excel)) for idx, excel in enumerate(excel_lists)]
 
-    events = [Event.create_from_data_frame(row) for df in data_frames for idx,row in df.iterrows()]
+    events = [Event.create_from_data_frame(table, idx + 1, row) for (table, df) in data_frames
+              for idx, row in df.iterrows() if isinstance(row["Data"], datetime) and verify_and_filter(row)]
 
-    data_frames = dv.verify_and_filter(data_frames)
-
-    event_table_list = map(lambda a: map(lambda b: Event.create_from_data_frame(b), a), data_frames)
-
-    conflicts = get_all_conflicts(event_table_list)
+    conflicts = get_all_conflicts(events)
 
     if conflicts:
         print("Conflicts Detected")
     for conflict in conflicts:
         print(conflict)
-
