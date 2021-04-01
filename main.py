@@ -1,70 +1,69 @@
-import pandas as pd
-from typing import List
-from os.path import splitext, exists, isfile, isdir, join
-from os import listdir
-from ConflictChecker import get_all_conflicts
-from Event import Event
-from datetime import datetime
-from DataVerifier import verify_and_filter
+from commands import add_command, check_command, submit_command
 
 file = '.\sheet3.xlsx'
+HELP = "help"
 QUIT = "quit"
+ADD = "add"
+CHECK = "check"
+SUBMIT = "submit"
+YES = "yes"
+
+list_of_commands = """
+    Possible commands
+    help - print all possible commands
+    quit - close program
+    add path - is checking all xlsx file/s from path (you can pass directory path) for conflicts
+    submit - send data from added xlsx files if conflicts doesn't occur 
+
+"""
 
 
-def import_data_from_excel(file_name: str) -> pd.DataFrame:
-    df = pd.read_excel(file_name, engine='openpyxl')
-    df = df.where(pd.notnull(df), None)
-    return fill_empty_cells(df)
+def check_result(result):
+    if result:
+        return result
+    else:
+        return []
 
 
-def fill_empty_cells(df: pd.DataFrame) -> pd.DataFrame:
-    for column in df:
-        prev = None
-        if column != "Godziny":
-            for idx, elem in enumerate(df[column]):
-                if elem is None or pd.isna(elem):
-                    df.loc[idx, column] = prev
-                if elem is not None and not pd.isna(elem):
-                    prev = elem
-    return df
-
-
-def is_xlsx_file(path: str) -> bool:
-    return isfile(path) and splitext(path)[1] == ".xlsx"
-
-
-def find_all_excels_in_path(path: str) -> List[str]:
-    result = [join(path, file) for file in listdir(path) if is_xlsx_file(join(path, file))]
-    print(f"Read {len(result)} xlsx files in this directory")
-    return result
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    excel_lists = []
-    # text = ""
-    text = file
-    print("Input excels paths. When you finish write quit")
+    excel_list = []
+    events_list = []
+    text = ""
+    print("Input commands")
     while text != QUIT:
-        # text = input()
-        if text != QUIT and exists(text):
-            if is_xlsx_file(text):
-                excel_lists.append(text)
-            elif isdir(text):
-                excel_lists.append(find_all_excels_in_path(text))
+        text = input()
+        text = text.split(" ")
+        command = text[0].lower()
+        arg = text[1] if len(text) > 1 else None
+        if command == QUIT:
+            if excel_list:
+                print("Are you sure, that you don't want to check these files", " ".join(excel_list))
+                print("Write yes if you want to exit without checking files")
+                text = "are you sure"
+            elif events_list:
+                print(f"Are you sure, that you don't want to submit {len(events_list)} events to system")
+                print("Write yes if you want to exit without submitting files")
+                text = "are you sure"
             else:
-                print("This path does not correspond to directory or xlsx file")
-        elif text != QUIT and not exists(text):
-            print("This path is not correct")
-        text = QUIT
-    data_frames = [(idx + 1, import_data_from_excel(excel)) for idx, excel in enumerate(excel_lists)]
+                text = QUIT
+        elif command == HELP:
+            print(list_of_commands)
+        elif command == ADD and arg is not None:
+            prev_length = len(excel_list)
+            excel_list.extend(check_result(add_command(arg)))
+            print(f"Successfully added {len(excel_list) - prev_length} excels")
+        elif command == CHECK:
+            prev_length = len(events_list)
+            events_list.extend(check_result(check_command(excel_list, events_list)))
+            print(f"Successfully added {len(events_list) - prev_length} events list without conflicts")
+            excel_list = []
+        elif command == SUBMIT:
+            submit_command(events_list)
+            print(f"{len(events_list)} events was submitted")
+            events_list = []
+        elif command == YES:
+            text = QUIT
+        else:
+            print(f"Don't recognize command {command}. To get all possible command write help")
 
-    events = [Event.create_from_data_frame(table, idx + 1, row) for (table, df) in data_frames
-              for idx, row in df.iterrows() if isinstance(row["Data"], datetime) and verify_and_filter(row)]
-
-    conflicts = get_all_conflicts(events)
-
-    if conflicts:
-        print("Conflicts Detected")
-    for conflict in conflicts:
-        print(conflict)
+    print("Application is closing")
