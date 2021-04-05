@@ -13,7 +13,8 @@ list_of_commands = """
     help - print all possible commands
     quit - close program
     add path - is checking all xlsx file/s from path (you can pass directory path) for conflicts
-    submit - send data from added xlsx files if conflicts doesn't occur 
+    check - check all newly added files for conflicts
+    submit - send data from added xlsx files if conflicts don't occur 
 
 """
 
@@ -55,7 +56,7 @@ if __name__ == '__main__':
         elif command == CHECK:
             prev_length = len(events_list)
             events_list.extend(check_result(check_command(excel_list, events_list)))
-            print(f"Successfully added {len(events_list) - prev_length} events list without conflicts")
+            print(f"Successfully added {len(events_list) - prev_length} event list(s) without conflicts")
             excel_list = []
         elif command == SUBMIT:
             submit_command(events_list)
@@ -64,6 +65,6 @@ if __name__ == '__main__':
         elif command == YES:
             text = QUIT
         else:
-            print(f"Don't recognize command {command}. To get all possible command write help")
+            print(f"Cannot recognize command {command}. To get all possible commands write help")
 
     print("Application is closing")

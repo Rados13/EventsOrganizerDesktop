@@ -5,7 +5,7 @@ from os import listdir
 from ConflictChecker import get_all_conflicts
 from Event import Event
 from datetime import datetime
-from DataVerifier import verify_and_filter
+from DataVerifier import verify_and_filter, verify_dataframe
 
 
 def import_data_from_excel(file_name: str) -> pd.DataFrame:
@@ -50,9 +50,10 @@ def add_command(path: str) -> List[str]:
 
 def check_command(excel_list: List[str], checked_events: List[Event]) -> List[Event]:
     data_frames = [(idx + 1, import_data_from_excel(excel)) for idx, excel in enumerate(excel_list)]
+    data_frames = [frame for frame in data_frames if verify_dataframe(frame[1])]
 
     events = [Event.create_from_data_frame(table, idx + 1, row) for (table, df) in data_frames
-              for idx, row in df.iterrows() if isinstance(row["Data"], datetime) and verify_and_filter(row)]
+              for idx, row in df.iterrows() if isinstance(row["Data"], datetime) and verify_and_filter(row, idx)]
 
     all_events = events + checked_events
 

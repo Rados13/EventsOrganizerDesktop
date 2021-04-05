@@ -28,8 +28,8 @@ class Conflict:
 
 def get_all_conflicts(events: List[Event]):
     conflicts = []
-    for first_event in events:
-        for second_event in events:
+    for first_idx, first_event in enumerate(events):
+        for second_event in events[first_idx:]:
             if first_event != second_event and first_event.is_conflict(second_event):
                 conflicts.append(Conflict(
                     first_event, second_event, first_event.get_conflict_type(second_event),
