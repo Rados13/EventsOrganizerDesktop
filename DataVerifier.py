@@ -1,15 +1,17 @@
-import pandas as pd
+from datetime import datetime
 
 
-# Verifies and filters input data. So far only basic functionality concerning required column fields.
-# Will be added: time verification.
-def verify_and_filter(row, idx):
+def verify_and_filter(row, idx: int):
     fields = ("Forma", "Prowadzący", "Godziny", "Data")
     missing = [f for f in fields if f not in row or row[f] is None]
 
+    if "Data" not in missing:
+        if row["Data"] < datetime.today().date():
+            print("Warning! Date " + str(row["Data"].date()) + " in row " + str(idx) + " is before today.")
+
     if missing:
         print("Warning! Incomplete column set in row " + str(idx) +
-              " of xlsx file. " + str(missing) + " missing. Will be ignored in further operations.")
+              " of xlsx file. " + str(missing) + " missing. Row will be ignored in further operations.")
         return False
     else:
         return True
