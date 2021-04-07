@@ -1,10 +1,11 @@
-from commands import add_command, check_command, submit_command
+from commands import add_command, check_command, print_command, submit_command
 
 file = '.\sheet3.xlsx'
 HELP = "help"
 QUIT = "quit"
 ADD = "add"
 CHECK = "check"
+PRINT = "print"
 SUBMIT = "submit"
 YES = "yes"
 
@@ -14,6 +15,7 @@ list_of_commands = """
     quit - close program
     add path - is checking all xlsx file/s from path (you can pass directory path) for conflicts
     check - check all newly added files for conflicts
+    print - print all events that were checked for conflicts and are ready to be submitted
     submit - send data from added xlsx files if conflicts don't occur 
 
 """
@@ -58,6 +60,8 @@ if __name__ == '__main__':
             events_list.extend(check_result(check_command(excel_list, events_list)))
             print(f"Successfully added {len(events_list) - prev_length} event list(s) without conflicts")
             excel_list = []
+        elif command == PRINT:
+            print_command(events_list)
         elif command == SUBMIT:
             submit_command(events_list)
             print(f"{len(events_list)} events was submitted")

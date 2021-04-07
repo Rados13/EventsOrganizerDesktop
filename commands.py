@@ -66,6 +66,12 @@ def check_command(excel_list: List[str], checked_events: List[Event]) -> List[Ev
         return events
 
 
+def print_command(events_list: List[Event]):
+    for event in events_list:
+        print(event)
+    pass
+
+
 # made request to REST API
 def submit_command(events_list: List[Event]):
     pass
