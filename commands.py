@@ -6,6 +6,7 @@ from ConflictChecker import get_all_conflicts
 from Event import Event
 from datetime import datetime
 from DataVerifier import verify_and_filter, verify_dataframe
+import requests
 
 
 def import_data_from_excel(file_name: str) -> pd.DataFrame:
@@ -67,11 +68,44 @@ def check_command(excel_list: List[str], checked_events: List[Event]) -> List[Ev
 
 
 def print_command(events_list: List[Event]):
+    print("Nr. Zjazdu | Przedmiot | L/W | Rozpoczęcie | Zakończenie | " +
+          "Forma | Sala | Imie Prowadzącego | Nazwisko Prowadzącego | Grupa")
     for event in events_list:
         print(event)
-    pass
 
 
-# made request to REST API
+# makes request to REST API
 def submit_command(events_list: List[Event]):
-    pass
+    #return #do not use
+    for event in events_list:
+        classes_form = None
+        if event.form == "zdalnie":
+            classes_form = "REMOTE"
+        if event.form == "stacjonarnie":
+            classes_form = "STATIONARY"
+
+        classes_type = None
+        if event.event_type == "L":
+            classes_type = "LABORATORY"
+        if event.event_type == "W":
+            classes_type = "LECTURE"
+        json = {
+            "appointmentNumber": event.appointment_number,
+            "startTime":  event.start_time.strftime("%Y-%m-%d %H.%M"),
+            "endTime": event.end_time.strftime("%Y-%m-%d %H.%M"),
+            "name": event.name,
+            "studentsGroup": event.group,
+            "firstName": event.first_name,
+            "lastName": event.last_name,
+            "classesType": classes_type,
+            "numberOfHours": event.hours,
+            "classesForm": classes_form,
+            "classroom": event.room
+        }
+        result = requests.post("https://eventsorganizer.herokuapp.com/classes/submit", json=json)
+        try:
+            result.json()
+        except:
+            print("Error with submit occurred.")
+            print(result.content)
+

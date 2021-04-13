@@ -28,11 +28,11 @@ def verify_dataframe(dataframe):
 
     if submitted_missing:
         print("Warning! Incomplete column set in xlsx file. " +
-              str(important_missing) + " missing. If submitted, these values will not be set on the service.")
+              str(submitted_missing) + " missing. If submitted, these values will not be set on the service.")
 
     if important_missing:
         print("Warning! Incomplete column set in xlsx file. " +
-              str(submitted_missing) + " missing. Will be ignored in further operations.")
+              str(important_missing) + " missing. Will be ignored in further operations.")
         return False
     else:
         return True
