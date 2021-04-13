@@ -1,6 +1,5 @@
 from commands import add_command, check_command, print_command, submit_command
 
-file = '.\sheet3.xlsx'
 HELP = "help"
 QUIT = "quit"
 ADD = "add"
@@ -17,7 +16,6 @@ list_of_commands = """
     check - check all newly added files for conflicts
     print - print all events that were checked for conflicts and are ready to be submitted
     submit - send data from added xlsx files if conflicts don't occur 
-
 """
 
 
