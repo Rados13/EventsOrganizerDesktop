@@ -7,6 +7,7 @@ from Event import Event
 from datetime import datetime
 from DataVerifier import verify_and_filter, verify_dataframe
 
+BACKEND_URL = "https://eventsorganizer.herokuapp.com/"
 
 def import_data_from_excel(file_name: str) -> pd.DataFrame:
     df = pd.read_excel(file_name, engine='openpyxl')
@@ -75,3 +76,8 @@ def print_command(events_list: List[Event]):
 # made request to REST API
 def submit_command(events_list: List[Event]):
     pass
+
+
+def get_data_from_db():
+    pass
+

@@ -6,16 +6,18 @@ ADD = "add"
 CHECK = "check"
 PRINT = "print"
 SUBMIT = "submit"
+CHANGE_MODE = "change_mode"
 YES = "yes"
 
 list_of_commands = """
     Possible commands
     help - print all possible commands
     quit - close program
-    add path - is checking all xlsx file/s from path (you can pass directory path) for conflicts
+    add <path> - is checking all xlsx file/s from path (you can pass directory path) for conflicts
     check - check all newly added files for conflicts
     print - print all events that were checked for conflicts and are ready to be submitted
     submit - send data from added xlsx files if conflicts don't occur 
+    change_mode - change on/off checking with db mode
 """
 
 
@@ -25,6 +27,8 @@ def check_result(result):
     else:
         return []
 
+
+is_dbmode_on = False
 
 if __name__ == '__main__':
     excel_list = []
@@ -66,6 +70,9 @@ if __name__ == '__main__':
             events_list = []
         elif command == YES:
             text = QUIT
+        elif command == CHANGE_MODE:
+            is_dbmode_on = not is_dbmode_on
+            print(f"DB mode change to {'on' if is_dbmode_on else 'off'}")
         else:
             print(f"Cannot recognize command {command}. To get all possible commands write help")
 
