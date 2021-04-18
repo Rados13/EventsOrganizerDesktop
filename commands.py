@@ -3,7 +3,7 @@ from typing import List
 from os.path import splitext, exists, isfile, isdir, join
 from os import listdir
 from ConflictChecker import get_all_conflicts
-from Event import Event
+from Event import Event, print_event_label
 from datetime import datetime
 from DataVerifier import verify_and_filter, verify_dataframe
 import requests
@@ -52,26 +52,30 @@ def add_command(path: str) -> List[str]:
 
 
 def check_command(excel_list: List[str], checked_events: List[Event]) -> List[Event]:
-    data_frames = [(idx + 1, import_data_from_excel(excel)) for idx, excel in enumerate(excel_list)]
-    data_frames = [frame for frame in data_frames if verify_dataframe(frame[1])]
+    data_frames = [(excel, import_data_from_excel(excel)) for excel in excel_list]
+    data_frames = [frame for frame in data_frames if verify_dataframe(frame[1], frame[0])]
 
     events = [Event.create_from_data_frame(table, idx + 1, row) for (table, df) in data_frames
-              for idx, row in df.iterrows() if isinstance(row["Data"], datetime) and verify_and_filter(row, idx)]
+              for idx, row in df.iterrows() if isinstance(row["Data"], datetime) and verify_and_filter(row, idx, table)]
 
     all_events = events + checked_events
 
     conflicts = get_all_conflicts(all_events)
 
     if conflicts:
-        print("Conflicts Detected")
-        print("\n".join([elem.__str__() for elem in conflicts]))
+        print("\nConflicts Detected\n")
+        for elem in conflicts:
+            print(elem)
+            print_event_label()
+            print(elem.event_1)
+            print(elem.event_2)
+            print()
     else:
         return events
 
 
 def print_command(events_list: List[Event]):
-    print("Nr. Zjazdu | Przedmiot | L/W | Rozpoczęcie | Zakończenie | " +
-          "Forma | Sala | Imie Prowadzącego | Nazwisko Prowadzącego | Grupa")
+    print_event_label()
     for event in events_list:
         print(event)
 

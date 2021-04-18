@@ -6,7 +6,7 @@ from enum import Enum
 class Event:
 
     @staticmethod
-    def create_from_data_frame(table_idx: int, row_idx: int, row) -> Event:
+    def create_from_data_frame(table: str, row_idx: int, row) -> Event:
         names = row["Prowadzący"].split(" ")
         first_name = names[0]
         last_name = names[1]
@@ -16,7 +16,7 @@ class Event:
         end_time = datetime.strptime(end_time, "%H.%M")
         start_time = event_date + timedelta(hours=start_time.hour, minutes=start_time.minute)
         end_time = event_date + timedelta(hours=end_time.hour, minutes=end_time.minute)
-        return Event(table_idx,
+        return Event(table,
                      row_idx,
                      row["Zjazd"] if "Zjazd" in row else None,
                      row["Przedmiot"] if "Przedmiot" in row else None,
@@ -72,6 +72,11 @@ class Event:
                str(self.start_time) + " | " + str(self.end_time) + " | " + str(self.form) + " | " + \
                str(self.room) + " | " + str(self.first_name) + " | " + str(self.last_name) + " | " + \
                str(self.group)
+
+
+def print_event_label():
+    print("Nr. Zjazdu | Przedmiot | L/W | Rozpoczęcie | Zakończenie | " +
+          "Forma | Sala | Imie Prowadzącego | Nazwisko Prowadzącego | Grupa")
 
 
 class ConflictType(Enum):
