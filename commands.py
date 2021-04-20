@@ -7,9 +7,7 @@ from Event import Event, print_event_label
 from datetime import datetime
 from DataVerifier import verify_and_filter, verify_dataframe
 import requests
-
-BACKEND_URL = "https://eventsorganizer.herokuapp.com"
-
+from access_db import BACKEND_URL
 
 def import_data_from_excel(file_name: str) -> pd.DataFrame:
     df = pd.read_excel(file_name, engine='openpyxl')
@@ -115,6 +113,3 @@ def submit_command(events_list: List[Event]):
             print("Error with submit occurred.")
             print(result.content)
 
-
-def get_data_from_db():
-    pass

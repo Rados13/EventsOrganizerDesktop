@@ -6,6 +6,24 @@ from enum import Enum
 class Event:
 
     @staticmethod
+    def create_from_db_data(db_event: dict) -> Event:
+        return Event(
+            "DB",
+            id,
+            db_event["appointmentNumber"],
+            db_event["name"],
+            "L" if db_event["classesType"] == 'LECTURE' else "W",
+            datetime.strptime(db_event["startTime"],"%Y-%m-%dT%H:%M:%S"),
+            datetime.strptime(db_event["endTime"],"%Y-%m-%dT%H:%M:%S"),
+            db_event["numberOfHours"],
+            'zdalnie' if db_event["numberOfHours"] == 'REMOTE' else 'stacjonarnie',
+            db_event['classroom'],
+            db_event["studentsGroup"],
+            db_event["instructor"]["firstName"],
+            db_event["instructor"]["lastName"]
+        )
+
+    @staticmethod
     def create_from_data_frame(table: str, row_idx: int, row) -> Event:
         names = row["Prowadzący"].split(" ")
         first_name = names[0]
