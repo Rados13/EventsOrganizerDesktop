@@ -16,7 +16,7 @@ class Event:
             datetime.strptime(db_event["startTime"],"%Y-%m-%dT%H:%M:%S"),
             datetime.strptime(db_event["endTime"],"%Y-%m-%dT%H:%M:%S"),
             db_event["numberOfHours"],
-            'zdalnie' if db_event["numberOfHours"] == 'REMOTE' else 'stacjonarnie',
+            'zdalnie' if db_event["classesForm"] == 'REMOTE' else 'stacjonarnie',
             db_event['classroom'],
             db_event["studentsGroup"],
             db_event["instructor"]["firstName"],

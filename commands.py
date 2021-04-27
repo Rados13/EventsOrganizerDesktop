@@ -7,6 +7,8 @@ from Event import Event, print_event_label
 from datetime import datetime
 from DataVerifier import verify_and_filter, verify_dataframe
 import requests
+
+from SuggestionFinder import find_all_suggestions
 from access_db import BACKEND_URL
 
 def import_data_from_excel(file_name: str) -> pd.DataFrame:
@@ -61,13 +63,28 @@ def check_command(excel_list: List[str], checked_events: List[Event]) -> List[Ev
     conflicts = get_all_conflicts(all_events)
 
     if conflicts:
-        print("\nConflicts Detected\n")
+        print("\nConflicts Detected:\n")
         for elem in conflicts:
             print(elem)
             print_event_label()
             print(elem.event_1)
             print(elem.event_2)
             print()
+
+        events_conflicting = [c.event_1 for c in conflicts] + [c.event_2 for c in conflicts]
+        events_non_conflicting = [e for e in events if e not in events_conflicting]
+        suggestions = find_all_suggestions(conflicts, events_non_conflicting)
+        if suggestions:
+            print("\nSuggestions:\n")
+            for suggestion in suggestions:
+                print("Event:")
+                print_event_label()
+                print(suggestion.conflicting_event)
+                print("Could have its timeframe changed to:")
+                for timeframe in suggestion.timeframes:
+                    print(str(timeframe[0].hour).zfill(2) + ":" + str(timeframe[0].minute).zfill(2) + " - " +
+                          str(timeframe[1].hour).zfill(2) + ":" + str(timeframe[1].minute).zfill(2))
+                print()
     else:
         return events
 
