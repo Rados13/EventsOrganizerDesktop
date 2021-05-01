@@ -11,6 +11,19 @@ import requests
 from SuggestionFinder import find_all_suggestions
 from access_db import BACKEND_URL
 
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 def import_data_from_excel(file_name: str) -> pd.DataFrame:
     df = pd.read_excel(file_name, engine='openpyxl')
     df = df.where(pd.notnull(df), None)
@@ -52,17 +65,21 @@ def add_command(path: str) -> List[str]:
 
 
 def check_command(excel_list: List[str], checked_events: List[Event]) -> List[Event]:
+    print(bcolors.WARNING, end='')
     data_frames = [(excel, import_data_from_excel(excel)) for excel in excel_list]
     data_frames = [frame for frame in data_frames if verify_dataframe(frame[1], frame[0])]
 
     events = [Event.create_from_data_frame(table, idx + 1, row) for (table, df) in data_frames
               for idx, row in df.iterrows() if isinstance(row["Data"], datetime) and verify_and_filter(row, idx, table)]
 
+    print(bcolors.ENDC, end='')
+
     all_events = events + checked_events
 
     conflicts = get_all_conflicts(all_events)
 
     if conflicts:
+        print(bcolors.FAIL, end='')
         print("\nConflicts Detected:\n")
         for elem in conflicts:
             print(elem)
@@ -70,12 +87,14 @@ def check_command(excel_list: List[str], checked_events: List[Event]) -> List[Ev
             print(elem.event_1)
             print(elem.event_2)
             print()
+        print(bcolors.ENDC, end='')
 
         events_conflicting = [c.event_1 for c in conflicts] + [c.event_2 for c in conflicts]
         events_non_conflicting = [e for e in events if e not in events_conflicting]
         suggestions = find_all_suggestions(conflicts, events_non_conflicting)
         if suggestions:
-            print("\nSuggestions:\n")
+            print(bcolors.OKBLUE, end='')
+            print("Suggestions:\n")
             for suggestion in suggestions:
                 print("Event:")
                 print_event_label()
@@ -85,6 +104,7 @@ def check_command(excel_list: List[str], checked_events: List[Event]) -> List[Ev
                     print(str(timeframe[0].hour).zfill(2) + ":" + str(timeframe[0].minute).zfill(2) + " - " +
                           str(timeframe[1].hour).zfill(2) + ":" + str(timeframe[1].minute).zfill(2))
                 print()
+            print(bcolors.ENDC, end='')
     else:
         return events
 

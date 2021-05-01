@@ -34,7 +34,7 @@ if __name__ == '__main__':
     excel_list = []
     events_list = []
     text = ""
-    print("Input commands")
+    print("Input commands. Type \"help\" to see a list of possible commands.")
     while text != QUIT:
         text = input()
         text = text.split(" ")
