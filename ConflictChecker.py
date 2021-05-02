@@ -11,8 +11,8 @@ class Conflict:
     conflict_type: ConflictType
 
     def __str__(self):
-        msg = "conflict between " + str(self.event_1.table) + ", row " + str(self.event_1.row) + \
-              " and " + str(self.event_2.table) + ", row " + str(self.event_2.row) + "."
+        msg = "conflict between " + str(self.event_1.table_path) + ", row " + str(self.event_1.row) + \
+              " and " + str(self.event_2.table_path) + ", row " + str(self.event_2.row) + "."
         if self.conflict_type == ConflictType.LECTURER:
             return "Lecturer (" + self.event_1.first_name + " " + self.event_1.last_name + ") " + msg
         else:

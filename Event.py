@@ -20,21 +20,22 @@ class Event:
             db_event['classroom'],
             db_event["studentsGroup"],
             db_event["instructor"]["firstName"],
-            db_event["instructor"]["lastName"]
+            db_event["instructor"]["lastName"],
+            db_event["event"]
         )
 
     @staticmethod
-    def create_from_data_frame(table: str, row_idx: int, row) -> Event:
+    def create_from_data_frame(table_path: str, row_idx: int, row) -> Event:
         names = row["Prowadzący"].split(" ")
         first_name = names[0]
-        last_name = names[1]
+        last_name = names[1] if len(names) > 1 else None
         start_time, end_time = row["Godziny"].split("-")
         event_date = row["Data"]
         start_time = datetime.strptime(start_time, "%H.%M")
         end_time = datetime.strptime(end_time, "%H.%M")
         start_time = event_date + timedelta(hours=start_time.hour, minutes=start_time.minute)
         end_time = event_date + timedelta(hours=end_time.hour, minutes=end_time.minute)
-        return Event(table,
+        return Event(table_path,
                      row_idx,
                      row["Zjazd"] if "Zjazd" in row else None,
                      row["Przedmiot"] if "Przedmiot" in row else None,
@@ -49,8 +50,8 @@ class Event:
                      last_name
                      )
 
-    def __init__(self, table, row, appointment_number, name, event_type,
-                 start_time, end_time, hours, form, room, group, first_name, last_name):
+    def __init__(self, table_path, row, appointment_number, name, event_type,
+                 start_time, end_time, hours, form, room, group, first_name, last_name, table_name=None):
         self.appointment_number = int(appointment_number)
         self.name = name
         self.event_type = event_type
@@ -62,7 +63,8 @@ class Event:
         self.first_name = first_name
         self.last_name = last_name
         self.hours = int(hours)
-        self.table = table
+        self.table_path = table_path
+        self.table_name = table_name if table_name is not None else table_path.split(sep="\\")[-1].split(sep=".")[0]
         self.row = row
 
     def at_same_date_other_event(self, other: Event) -> bool:
@@ -89,12 +91,12 @@ class Event:
         return str(self.appointment_number) + " | " + str(self.name) + " | " + str(self.event_type) + " | " + \
                str(self.start_time) + " | " + str(self.end_time) + " | " + str(self.form) + " | " + \
                str(self.room) + " | " + str(self.first_name) + " | " + str(self.last_name) + " | " + \
-               str(self.group)
+               str(self.group) + " | " + str(self.table_name)
 
 
 def print_event_label():
     print("Nr. Zjazdu | Przedmiot | L/W | Rozpoczęcie | Zakończenie | " +
-          "Forma | Sala | Imie Prowadzącego | Nazwisko Prowadzącego | Grupa")
+          "Forma | Sala | Imie Prowadzącego | Nazwisko Prowadzącego | Grupa | Wydarzenie")
 
 
 class ConflictType(Enum):

@@ -141,7 +141,8 @@ def submit_command(events_list: List[Event]):
             "classesType": classes_type,
             "numberOfHours": event.hours,
             "classesForm": classes_form,
-            "classroom": event.room
+            "classroom": event.room,
+            "event": event.table_name
         }
         result = requests.post(f"{BACKEND_URL}/classes/submit", json=json)
         try:
