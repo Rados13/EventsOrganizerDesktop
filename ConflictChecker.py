@@ -1,5 +1,9 @@
+import sys
 from dataclasses import dataclass
 from typing import List
+
+from tqdm import tqdm
+
 from Event import Event, ConflictType
 from access_db import get_lecture_events_from_db
 
@@ -22,7 +26,8 @@ class Conflict:
 def get_all_conflicts(events: List[Event]):
     conflicts = []
     conflicts_with_db = []
-    for first_idx, first_event in enumerate(events):
+    for first_idx, first_event in enumerate(tqdm(events, file=sys.stdout, desc="Checking conflicts",
+                                                 bar_format='{l_bar}{bar:10}{r_bar}{bar:-10b}')):
         for second_event in events[first_idx:]:
             if first_event != second_event and first_event.is_conflict(second_event):
                 conflicts.append(Conflict(

@@ -1,7 +1,8 @@
+import sys
 from dataclasses import dataclass
 from typing import List, Tuple
 from datetime import datetime, time, timedelta, date
-
+from tqdm import tqdm
 from ConflictChecker import Conflict
 from Event import Event, ConflictType
 from access_db import get_lecture_events_from_db, get_room_events_from_db
@@ -56,7 +57,9 @@ def find_all_suggestions(conflict_list: List[Conflict], correct_events: List[Eve
     correct_events = correct_events + suggested_correct
 
     suggestions = []
-    for conflict in conflict_list:
+    for conflict in tqdm(conflict_list, file=sys.stdout,  desc="Finding suggestions",
+                         bar_format='{l_bar}{bar:10}{r_bar}{bar:-10b}'):
+
         c = conflict.event_1
         events_same_lecturer = [e for e in correct_events + get_lecture_events_from_db(c.first_name, c.first_name)
                                 if e.first_name == c.first_name and e.last_name == c.last_name

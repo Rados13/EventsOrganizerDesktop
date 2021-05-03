@@ -1,7 +1,9 @@
+import sys
 import pandas as pd
 from typing import List
 from os.path import splitext, exists, isfile, isdir, join
 from os import listdir
+from tqdm import tqdm
 from ConflictChecker import get_all_conflicts
 from Event import Event, print_event_label
 from datetime import datetime
@@ -73,6 +75,7 @@ def check_command(excel_list: List[str], checked_events: List[Event]) -> List[Ev
               for idx, row in df.iterrows() if isinstance(row["Data"], datetime) and verify_and_filter(row, idx, table)]
 
     print(bcolors.ENDC, end='')
+    print()
 
     all_events = events + checked_events
 
@@ -80,7 +83,7 @@ def check_command(excel_list: List[str], checked_events: List[Event]) -> List[Ev
 
     if conflicts:
         print(bcolors.FAIL, end='')
-        print("\nConflicts Detected:\n")
+        print("Conflicts Detected:\n")
         for elem in conflicts:
             print(elem)
             print_event_label()
@@ -117,8 +120,8 @@ def print_command(events_list: List[Event]):
 
 # makes request to REST API
 def submit_command(events_list: List[Event]):
-    # return #do not use
-    for event in events_list:
+
+    for event in tqdm(events_list, file=sys.stdout, desc="Submitting", bar_format='{l_bar}{bar:10}{r_bar}{bar:-10b}'):
         classes_form = None
         if event.form == "zdalnie":
             classes_form = "REMOTE"

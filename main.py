@@ -38,6 +38,7 @@ if __name__ == '__main__':
     print("Input commands. Type \"help\" to see a list of possible commands.")
 
     while text != QUIT:
+        print(">", end="")
         text = input()
         text = text.split(" ")
         command = text[0].lower()
