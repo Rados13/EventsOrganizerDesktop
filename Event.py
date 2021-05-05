@@ -35,7 +35,7 @@ class Event:
         end_time = datetime.strptime(end_time, "%H.%M")
         start_time = event_date + timedelta(hours=start_time.hour, minutes=start_time.minute)
         end_time = event_date + timedelta(hours=end_time.hour, minutes=end_time.minute)
-        event_name = ntpath.basename(table_path)
+        # event_name = ntpath.basename(table_path)
         return Event(table_path,
                      row_idx,
                      row["Zjazd"] if "Zjazd" in row else None,

@@ -23,7 +23,7 @@ class Conflict:
             return "Place ( " + self.event_1.room + ") " + msg
 
 
-def get_all_conflicts(events: List[Event]):
+def get_all_conflicts(events: List[Event], db_mode: bool):
     conflicts = []
     conflicts_with_db = []
     for first_idx, first_event in enumerate(tqdm(events, file=sys.stdout, desc="Checking conflicts",
@@ -33,9 +33,11 @@ def get_all_conflicts(events: List[Event]):
                 conflicts.append(Conflict(
                     first_event, second_event, first_event.get_conflict_type(second_event)
                 ))
-        for second_event in get_lecture_events_from_db(first_event.first_name, first_event.last_name):
-            if first_event.is_conflict(second_event):
-                conflicts_with_db.append(Conflict(
-                    first_event, second_event, first_event.get_conflict_type(second_event)
-                ))
+
+        if db_mode:
+            for second_event in get_lecture_events_from_db(first_event.first_name, first_event.last_name):
+                if first_event.is_conflict(second_event):
+                    conflicts_with_db.append(Conflict(
+                        first_event, second_event, first_event.get_conflict_type(second_event)
+                    ))
     return conflicts + conflicts_with_db
