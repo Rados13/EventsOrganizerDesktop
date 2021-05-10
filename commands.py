@@ -1,3 +1,5 @@
+import os
+import re
 import sys
 import pandas as pd
 from typing import List
@@ -66,7 +68,15 @@ def add_command(path: str) -> List[str]:
         print("This path is not correct")
 
 
-def check_command(excel_list: List[str], checked_events: List[Event], db_mode: bool) -> List[Event]:
+def remove_command(excel_list, path: str) -> List[str]:
+    to_remove = []
+    for excel_path in excel_list:
+        if re.match(re.escape(path), excel_path):
+            to_remove.append(excel_path)
+    return to_remove
+
+
+def check_command(excel_list: List[str], db_mode: bool) -> List[Event]:
     print(bcolors.WARNING, end='')
     data_frames = [(excel, import_data_from_excel(excel)) for excel in excel_list]
     data_frames = [frame for frame in data_frames if verify_dataframe(frame[1], frame[0])]
@@ -77,9 +87,7 @@ def check_command(excel_list: List[str], checked_events: List[Event], db_mode: b
     print(bcolors.ENDC, end='')
     print()
 
-    all_events = events + checked_events
-
-    conflicts = get_all_conflicts(all_events, db_mode)
+    conflicts = get_all_conflicts(events, db_mode)
 
     if conflicts:
         print(bcolors.FAIL, end='')
@@ -113,14 +121,20 @@ def check_command(excel_list: List[str], checked_events: List[Event], db_mode: b
 
 
 def print_events_command(events_list: List[Event]):
-    print_event_label()
-    for event in events_list:
-        print(event)
+    if len(events_list) != 0:
+        print_event_label()
+        for event in events_list:
+            print(event)
+    else:
+        print("No events to print.")
 
 
 def print_files_command(files_list: List[str]):
-    for file in files_list:
-        print(file)
+    if len(files_list) != 0:
+        for file in files_list:
+            print(file)
+    else:
+        print("No files to print.")
 
 
 # makes request to REST API

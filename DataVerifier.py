@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 
 
 def verify_and_filter(row, idx: int, table_name: str):
@@ -17,8 +18,13 @@ def verify_and_filter(row, idx: int, table_name: str):
         print(f"Warning! Incomplete column set in row {idx} " +
               f"of {table_name}. {missing} missing. Row will be ignored in further operations.")
         return False
-    else:
-        return True
+
+    if not re.match("\d+\.\d+\-\d+\.\d+", row["Godziny"]):
+        print(f"Warning! Incorrect format of \"Godziny\" in row {idx} of {table_name}. Should be \"HH.MM-HH.MM\". "
+              f"Row will be ignored in further operations.")
+        return False
+
+    return True
 
 
 def verify_dataframe(dataframe, table_name: str):

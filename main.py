@@ -1,13 +1,13 @@
-from os.path import splitext
+import os
 from typing import List
-
-from Event import Event
-from commands import add_command, check_command, print_events_command, print_files_command, submit_command
+from commands import add_command, check_command, print_events_command, print_files_command, submit_command, \
+    remove_command
 import colorama
 
 HELP = "help"
 QUIT = "quit"
 ADD = "add"
+REMOVE = "remove"
 CHECK = "check"
 PRINT = "print"
 SUBMIT = "submit"
@@ -34,6 +34,7 @@ def check_result(result):
 
 
 is_dbmode_on = False
+is_yes_awaiting = False
 
 
 def dbmode_str():
@@ -70,23 +71,37 @@ if __name__ == '__main__':
                     print("Are you sure, that you don't want to check these files", " ".join(excel_list))
                     print("Write yes if you want to exit without checking files")
                     text = "are you sure"
+                    is_yes_awaiting = True
                 elif events_list:
                     print(f"Are you sure, that you don't want to submit {len(events_list)} events to system")
                     print("Write yes if you want to exit without submitting files")
                     text = "are you sure"
+                    is_yes_awaiting = True
                 else:
                     text = QUIT
             elif command == HELP:
                 print(list_of_commands)
             elif command == ADD and arg is not None:
                 prev_length = len(excel_list)
-                add_command_result = check_result(add_command(arg))
+                path = os.path.realpath(arg)
+                add_command_result = check_result(add_command(path))
                 repeated, new_values = span(lambda elem: elem in excel_list, add_command_result)
                 excel_list.extend(new_values)
                 [print(f"File {elem} added again") for elem in repeated]
                 print(f"Successfully added {len(new_values)} excels")
+            elif command == REMOVE and arg is not None:
+                path = os.path.realpath(arg)
+                to_remove = remove_command(excel_list, path)
+                for i in to_remove:
+                    excel_list.remove(i)
+                print(f"Successfully removed {to_remove}.")
             elif command == CHECK:
-                events_list = check_result(check_command(excel_list, events_list, is_dbmode_on))
+                to_remove = [excel for excel in excel_list if not os.path.isfile(excel)]
+                if len(to_remove) > 0:
+                    for i in to_remove:
+                        excel_list.remove(i)
+                    print(f"Files {to_remove} no longer exist. Removing from an internal list.")
+                events_list = check_result(check_command(excel_list, is_dbmode_on))
                 print(f"Successfully added {len(events_list)} event list(s) without conflicts")
             elif command == PRINT and arg == "events":
                 print_events_command(events_list)
@@ -94,16 +109,19 @@ if __name__ == '__main__':
                 print_files_command(excel_list)
             elif command == SUBMIT:
                 submit_command(events_list)
-                print(f"{len(events_list)} events was submitted")
+                print(f"{len(events_list)} events were submitted")
                 events_list = []
                 excel_list = []
-            elif command == YES:
+            elif command == YES and is_yes_awaiting:
                 text = QUIT
             elif command == CHANGE_MODE:
                 is_dbmode_on = not is_dbmode_on
                 print(f"DB mode change to {dbmode_str()}")
             else:
                 print(f"Cannot recognize command {command}. To get all possible commands write help")
+
+            if command != QUIT:
+                is_yes_awaiting = False
         except:
             print(f"Unexpected error occurred. Operation {command} cancelled.")
 
