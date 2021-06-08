@@ -45,7 +45,7 @@ class Event:
                      end_time,
                      row["H"] if "H" in row else None,
                      row["Forma"],
-                     row["Sala"],
+                     str(row["Sala"]),
                      row["Grupa"] if "Grupa" in row else None,
                      first_name,
                      last_name
